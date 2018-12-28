@@ -14,12 +14,12 @@ WHOLE_NOTE = Duration(4.0)
 # How bad a interval sounds (given number of semitones)
 CHROMATIC_PENALTY = {
   0: 0,
-  1: 2,
+  1: 3,
   2: 1,
-  3: 0,
-  4: 0,
+  3: 1,
+  4: 1,
   5: 0,
-  6: 2,
+  6: 0,
 }
 
 C_MAJ = HarmonyChord(name='C', notes=['c3', 'e3', 'g3', 'c4'])
@@ -31,14 +31,21 @@ E_MIN = HarmonyChord(name='Em', notes=["e3", "g3", "b3", "e4"])
 F_MAJ = HarmonyChord(name='F', notes=["f2", "a2", "c3", "f3"])
 F_SHARP_MIN = HarmonyChord(name='F#m', notes=["f#2", "a2", "c#3", "f#3"])
 
+C_MAJ7_9 = HarmonyChord(name='Cmaj7/9', notes=['c3', 'e3', 'b3', 'd4'])
+D_7_9    = HarmonyChord(name='D7/9', notes=["d3", "f#3", "c4", "e4"])
+E_SUS2   = HarmonyChord(name='Esus2', notes=["e3", "f#3", "b3", "e4"])
+E_SUS4   = HarmonyChord(name='Esus4', notes=["e3", "a3", "b3", "e4"])
+B_MIN7   = HarmonyChord(name='Bm7', notes=["d3", "a3", "b3", "d4"])
+F_SHARP_MIN_7 = HarmonyChord(name='F#m7', notes=["e2", "f#2", "a3", "e3"])
+
 ALL_CHORDS = [
   C_MAJ, G_MAJ, A_MIN, B_MIN, D_MAJ, E_MIN,
 ]
 
-ALL_CHORDS_MIN = [
-  C_MAJ, G_MAJ, A_MIN, B_MIN, D_MAJ, E_MIN, F_SHARP_MIN
+STANK_CHORDS = [
+  D_MAJ,
+  C_MAJ7_9, D_7_9, E_SUS2, B_MIN7, F_SHARP_MIN_7
 ]
-
 
 def chord_search(notes, candidates):
   """Attempt to find the best chord to match a set of notes"""
@@ -67,7 +74,10 @@ def chord_search(notes, candidates):
 
 
 def run(chords, melody, series):
-  candidates = ALL_CHORDS if series == 'major' else ALL_CHORDS_MIN
+  if series == 'major':
+      candidates = ALL_CHORDS
+  if series == 'stank':
+      candidates = STANK_CHORDS 
   # Insert a chord for each measure
   for measure in filter(lambda x: isinstance(x, music21.stream.Measure), melody.elements):
     measure_notes = []

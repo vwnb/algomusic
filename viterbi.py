@@ -7,12 +7,7 @@ from music21.chord import Chord
 from music21.note import Note
 from music21.interval import notesToChromatic
 
-from chord_search import ALL_CHORDS, ALL_CHORDS_MIN, CHROMATIC_PENALTY, WHOLE_NOTE
-
-
-# Initialization probabilities for major and minor chords
-INIT_PROBS = [0, 1, 0, 0, 0, 0]
-INIT_PROBS_MIN = [0, 0, 0, 0, 0, 1, 0]
+from chord_search import ALL_CHORDS, STANK_CHORDS, CHROMATIC_PENALTY, WHOLE_NOTE
 
 def goodness(chord, bar_notes):
     score = 0
@@ -74,10 +69,19 @@ def run(chords, melody, series):
             measure_notes.append(note)
         all_notes.append(measure_notes)
 
-    init_probs = INIT_PROBS if series == 'major' else INIT_PROBS_MIN
-
     # Build transition matrix where probability of self-transition is low
-    all_chords = ALL_CHORDS if series == 'major' else ALL_CHORDS_MIN
+    if series == 'major':
+        all_chords = ALL_CHORDS
+    if series == 'stank':
+        all_chords = STANK_CHORDS
+
+    init_probs = []
+    for idx, item in enumerate(all_chords):
+        if(idx == 1):
+            init_probs.append(1)
+        else:
+            init_probs.append(0)
+
     trans_probs = []
     for i in range(len(all_chords)):
         trans_prob = []
@@ -88,7 +92,7 @@ def run(chords, melody, series):
                 trans_prob.append(1)
 
         s = sum(trans_prob)
-        trans_probs.append(map(lambda x: x / s, trans_prob))
+        trans_probs.append(list(map(lambda x: x / s, trans_prob)))
 
     prob, chord_seq = viterbi(all_chords, all_notes, init_probs, trans_probs, goodness)
 
